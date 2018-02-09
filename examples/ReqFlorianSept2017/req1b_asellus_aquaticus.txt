@@ -1,0 +1,28 @@
+SELECT   st.code_station, st.lat_deg_dec, st.long_deg_dec,
+	lot.code_lot_materiel, rt_lot.taxname as taxname_lot, ei_lot.date_identification as date_identification_lot,
+	ind.code_ind_tri_morpho,  rt_ind.taxname as taxname_ind, ei_ind.date_identification as date_identification_ind, ind.code_ind_biomol,
+   	 sa.code_sqc_ass,  rt_sqc_ass.taxname as taxname_sqc, ei_sqc_ass.date_identification as date_identification_sqc_ass,
+     voc_gene.code as gene, count(*) as nb_chromato_sqc_ass
+-- string_agg(chromato.code_chromato, ' ;') as liste_chromato
+FROM lot_materiel lot 
+		JOIN collecte col ON col.id = lot.collecte_fk
+			JOIN station st ON st.id = col.station_fk
+		LEFT JOIN espece_identifiee ei_lot ON ei_lot .lot_materiel_fk = lot.id
+			LEFT JOIN referentiel_taxon rt_lot ON ei_lot.referentiel_taxon_fk = rt_lot.id
+		JOIN  individu ind ON ind.lot_materiel_fk=lot.id
+			LEFT JOIN espece_identifiee ei_ind ON ei_ind.individu_fk = ind.id
+				LEFT JOIN referentiel_taxon rt_ind ON ei_ind.referentiel_taxon_fk = rt_ind.id
+			JOIN adn ON adn.individu_fk = ind.id
+				JOIN pcr ON pcr.adn_fk = adn.id
+					LEFT JOIN voc voc_gene ON pcr.gene_voc_fk = voc_gene.id
+       		 		JOIN chromatogramme chromato ON chromato.pcr_fk = pcr.id
+           					 LEFT JOIN est_aligne_et_traite eaet ON eaet.chromatogramme_fk = chromato.id
+            						JOIN sequence_assemblee sa ON eaet.sequence_assemblee_fk = sa.id
+							LEFT JOIN voc voc_statut_sqc_ass ON sa.statut_sqc_ass_voc_fk = voc_statut_sqc_ass .id
+           							LEFT JOIN espece_identifiee ei_sqc_ass ON ei_sqc_ass.sequence_assemblee_fk = sa.id
+								LEFT JOIN referentiel_taxon rt_sqc_ass ON ei_sqc_ass.referentiel_taxon_fk = rt_sqc_ass.id
+WHERE  rt_lot.taxname LIKE 'ASELLUS_AQUATICUS' OR rt_ind.taxname LIKE 'ASELLUS_AQUATICUS' OR rt_sqc_ass.taxname LIKE 'ASELLUS_AQUATICUS'
+GROUP BY st.code_station, st.lat_deg_dec, st.long_deg_dec, lot.code_lot_materiel, rt_lot.taxname, ei_lot.date_identification, 
+   	 ind.code_ind_tri_morpho,  rt_ind.taxname, ei_ind.date_identification, ind.code_ind_biomol,ind.code_ind_biomol,
+    	voc_gene.code, sa.code_sqc_ass, rt_sqc_ass.taxname,ei_sqc_ass.date_identification
+ORDER BY st.code_station ASC

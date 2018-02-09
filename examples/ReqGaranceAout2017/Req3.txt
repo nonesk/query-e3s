@@ -1,0 +1,25 @@
+SELECT chromato.code_chromato,  chromato.num_yas, chromato.commentaire_chromato,
+voc15.code as gene,  voc20.code as qualite_chromato, voc1.code as type_individu, 
+code_ind_biomol, code_ind_tri_morpho, code_tube, num_ind_biomol, commentaire_ind,
+rt.taxname, ei.date_identification, voc4.code as precision_date, voc5.code as critere_identification, ei.commentaire_esp_id
+FROM public.individu ind
+JOIN lot_materiel lot ON ind.lot_materiel_fk=lot.id
+LEFT JOIN voc voc1 ON ind.type_individu_voc_fk = voc1.id
+LEFT JOIN espece_identifiee ei ON ei.individu_fk = ind.id
+	LEFT JOIN voc voc4 ON ei.date_precision_voc_fk = voc4.id
+	LEFT JOIN voc voc5 ON ei.critere_identification_voc_fk = voc5.id
+	LEFT JOIN referentiel_taxon rt ON ei.referentiel_taxon_fk = rt.id
+JOIN adn ON adn.individu_fk = ind.id
+	LEFT JOIN voc voc6 ON adn.methode_extraction_adn_voc_fk = voc6.id
+	JOIN pcr ON pcr.adn_fk = adn.id
+		LEFT JOIN voc voc13 ON pcr.primer_pcr_start_voc_fk = voc13.id
+		LEFT JOIN voc voc14 ON pcr.primer_pcr_end_voc_fk = voc14.id
+		LEFT JOIN voc voc15 ON pcr.gene_voc_fk = voc15.id
+		LEFT JOIN voc voc16 ON pcr.qualite_pcr_voc_fk = voc16.id
+		LEFT JOIN voc voc17 ON pcr.date_precision_voc_fk = voc17.id
+		LEFT JOIN voc voc18 ON pcr.specificite_voc_fk = voc18.id
+        JOIN chromatogramme chromato ON chromato.pcr_fk = pcr.id
+        	LEFT JOIN voc voc20 ON chromato.qualite_chromato_voc_fk = voc20.id
+WHERE voc20.code LIKE 'OK' AND voc1.code LIKE 'A' AND voc15.code LIKE 'AM4'
+ORDER BY ind.id ASC
+;

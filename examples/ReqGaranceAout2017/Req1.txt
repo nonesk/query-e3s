@@ -1,0 +1,19 @@
+SELECT lot.code_lot_materiel,
+code_ind_biomol, code_ind_tri_morpho, voc1.code as type_individu, code_tube, num_ind_biomol, commentaire_ind,
+rt.taxname, ei.date_identification, voc4.code as precision_date, voc5.code as critere_identification, ei.commentaire_esp_id,
+string_agg(p.nom_personne, ' $ ') as identificateurs_morpho
+FROM public.individu ind
+JOIN lot_materiel lot ON ind.lot_materiel_fk=lot.id
+LEFT JOIN voc voc1 ON ind.type_individu_voc_fk = voc1.id
+LEFT JOIN espece_identifiee ei ON ei.individu_fk = ind.id
+	LEFT JOIN voc voc4 ON ei.date_precision_voc_fk = voc4.id
+	LEFT JOIN voc voc5 ON ei.critere_identification_voc_fk = voc5.id
+	LEFT JOIN referentiel_taxon rt ON ei.referentiel_taxon_fk = rt.id
+	LEFT JOIN est_identifie_par eip ON eip.espece_identifiee_fk = ei.id
+		LEFT JOIN personne p ON   eip.personne_fk = p.id
+JOIN adn ON adn.individu_fk = ind.id
+	LEFT JOIN voc voc6 ON adn.methode_extraction_adn_voc_fk = voc6.id
+WHERE voc1.code LIKE 'BOV' AND voc6.code LIKE 'C'
+GROUP BY ind.id, lot.code_lot_materiel,ind.code_ind_biomol, code_ind_tri_morpho, voc1.code, code_tube, num_ind_biomol, commentaire_ind,
+rt.taxname, ei.date_identification, voc4.code, voc5.code, ei.commentaire_esp_id
+ORDER BY ind.id ASC

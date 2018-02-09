@@ -1,0 +1,14 @@
+SELECT 
+st.code_station, st.lat_deg_dec, st.long_deg_dec,
+sa.code_sqc_ass_ext, sa.code_sqc_ass_ext_alignement, voc_statut_sqc_ass.code as statut_sqc_ass, sa.date_creation_sqc_ass_ext, 
+rt_sqc_ass.taxname as taxname_sqc,  ei_sqc_ass.date_identification as date_identification_sqc_ass,
+voc_gene.code as gene
+FROM collecte col
+	JOIN station st ON st.id = col.station_fk
+	JOIN sequence_assemblee_ext sa ON sa.collecte_fk = col.id
+		LEFT JOIN voc voc_gene ON sa.gene_voc_fk = voc_gene.id
+		LEFT JOIN voc voc_statut_sqc_ass ON sa.statut_sqc_ass_voc_fk = voc_statut_sqc_ass.id
+           	LEFT JOIN espece_identifiee ei_sqc_ass ON ei_sqc_ass.sequence_assemblee_ext_fk = sa.id
+		LEFT JOIN referentiel_taxon rt_sqc_ass ON ei_sqc_ass.referentiel_taxon_fk = rt_sqc_ass.id
+WHERE  rt_sqc_ass.taxname LIKE 'ASELLUS_AQUATICUS'
+ORDER BY st.code_station ASC, sa.code_sqc_ass_ext ASC
