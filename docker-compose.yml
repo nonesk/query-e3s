@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  dbe3s:
+    image: nonesk/e3s
+    restart: always
+  pgadmin:
+    image: thajeztah/pgadmin4
+    restart: always
+    ports:
+      - "5050:5050"
+    depends_on:
+      - dbe3s
